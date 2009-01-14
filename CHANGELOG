@@ -1,3 +1,14 @@
+* Added support to update
+
+  project.update_attributes :tasks => [
+    { :id => 1, :name => "Implement me" },
+    { :name => "Evangelize", :description => "Tell to your friends!" }
+  ]
+
+  project.tasks.size # => 2
+  project.tasks.first.name # => "Implement me"
+  project.tasks.last.name # => "Evangelize"
+
 * Added support to has_many
 
   class Project < ActiveRecord::Base

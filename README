@@ -12,6 +12,7 @@ class Project < ActiveRecord::Base
   has_many :tasks, :accessible => true
 end
 
+# CREATE
 project = Project.create :name => "NestedModels", :tasks => [
   { :name => "Implement", :description => "Implement me" }
 ]
@@ -19,6 +20,15 @@ project = Project.create :name => "NestedModels", :tasks => [
 project.name # => "NestedModels"
 project.taks.size # => 1
 
+# UPDATE
+project.update_attributes :tasks => [
+  { :id => 1, :name => "Implement me" },
+  { :name => "Evangelize", :description => "Tell to your friends!" }
+]
+
+project.tasks.size # => 2
+project.tasks.first.name # => "Implement me"
+project.tasks.last.name # => "Evangelize"
 
 
 
