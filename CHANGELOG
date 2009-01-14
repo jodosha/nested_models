@@ -1,3 +1,5 @@
+* Keep behaviors separated
+
 * Added support to update
 
   project.update_attributes :tasks => [

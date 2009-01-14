@@ -26,8 +26,12 @@ module ActiveRecord
           associated_attributes = new_attributes.delete(association)
           association = self.send(association)
           update_accessible_associated_records association, associated_attributes
-          association.build associated_attributes
+          create_accessible_associated_records association, associated_attributes
         end
+      end
+
+      def create_accessible_associated_records(association, associated_attributes)
+        association.build associated_attributes
       end
 
       def update_accessible_associated_records(association, associated_attributes)
