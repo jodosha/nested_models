@@ -1,0 +1,25 @@
+NestedModels
+============
+
+Until now ActiveRecord wasn't great with associations massive assignment (aka multi model forms handling).
+This plugin allow to deal with this kind of problems.
+
+
+Example
+=======
+
+class Project < ActiveRecord::Base
+  has_many :tasks, :accessible => true
+end
+
+project = Project.create :name => "NestedModels", :tasks => [
+  { :name => "Implement", :description => "Implement me" }
+]
+
+project.name # => "NestedModels"
+project.taks.size # => 1
+
+
+
+
+Copyright (c) 2009 Luca Guidi, released under the MIT license

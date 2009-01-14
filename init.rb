@@ -1,0 +1,1 @@
+require 'nested_models'

@@ -1,0 +1,9 @@
+* Added support to has_many
+
+  class Project < ActiveRecord::Base
+    has_many :tasks, :accessible => true
+  end
+
+  Project.create :name => "NestedModels", :tasks => [
+    { :name => "Implement", :description => "Implement me" }
+  ]
