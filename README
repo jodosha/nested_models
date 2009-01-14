@@ -30,6 +30,23 @@ project.tasks.size # => 2
 project.tasks.first.name # => "Implement me"
 project.tasks.last.name # => "Evangelize"
 
+# DESTROY
+project.update_attributes :tasks => [
+  { :id => 1, :destroy => true }
+]
+
+project.tasks.size # => 1
+
+Note: you can define your own destroy flag:
+class Milestone < ActiveRecord::Base
+  set_accessible_association_destroy_flag "destroy_me"
+end
+
+project.update_attributes :milestones => [
+  { :id => 1, :destroy_me => true }
+]
+
+
 
 
 Copyright (c) 2009 Luca Guidi, released under the MIT license

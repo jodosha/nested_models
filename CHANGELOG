@@ -1,3 +1,13 @@
+* Added support to destroy
+
+  project.tasks.size # => 1
+
+  project.update_attributes :tasks => [
+    { :id => 1, :destroy => true },
+  ]
+
+  project.tasks.size # => 0
+
 * Keep behaviors separated
 
 * Added support to update

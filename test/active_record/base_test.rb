@@ -8,6 +8,11 @@ class BaseTest < Test::Unit::TestCase
     assert_empty Task.accessible_associations
   end
 
+  def test_classes_should_keep_separated_accessible_destroy_flag
+    assert_equal :destroy, Project.accessible_association_destroy_flag
+    assert_equal :destroy_me, Milestone.accessible_association_destroy_flag
+  end
+
   def test_should_create_record_and_associated_records
     project = Project.create(:name => 'Project', :tasks => [
       { :name => 'Task one', :description => "Blah Blah" },
@@ -28,7 +33,7 @@ class BaseTest < Test::Unit::TestCase
   def test_should_add_associated_records
     assert_difference "Task.count" do
       assert project.update_attributes(:name => "NM", :tasks => [
-        { :name => 'Another task', :description => "Blah Blah"}
+        { :name => 'Another task', :description => "Blah Blah" }
       ])      
     end
     assert_equal "NM", project.name
@@ -46,13 +51,55 @@ class BaseTest < Test::Unit::TestCase
   def test_should_add_and_modify_associated_records
     assert_difference "Task.count" do
       assert project.update_attributes(:tasks => [
-        {:id => 1, :name => "mail"},
-        {:name => "xzy", :description => "M" }
+        { :id => 1, :name => "mail" },
+        { :name => "xzy", :description => "M" }
       ])
       assert_equal "mail", project.tasks.first.name
       assert_equal "xzy",  project.tasks.last.name
       assert_valid_associated_records project, :tasks # not needed, but it's free :-P
     end
+  end
+
+  def test_should_destroy_associated_records
+    assert_difference "Task.count", -1 do
+      assert project.update_attributes(:tasks => [
+        { :id => 1, :destroy => true }
+      ])
+    end
+    assert_empty project.tasks
+  end
+
+  def test_should_add_and_destroy_associated_records
+    assert_no_difference "Task.count" do
+      assert project.update_attributes(:tasks => [
+        { :id => 1, :destroy => true },
+        { :name => "Just added", :description => "Blah" }
+      ])
+    end
+    assert_valid_associated_records project, :tasks
+  end
+
+  def test_should_update_and_destroy_associated_records
+    task = project.tasks.create(:name => "Just created", :description => "Blah")
+    assert_difference "Task.count", -1 do
+      assert project.update_attributes(:tasks => [
+        { :id => 1, :name => "Modified" },
+        { :id => task.id, :destroy => true }
+      ])
+    end
+    assert_valid_associated_records project, :tasks
+  end
+
+  def test_should_add_and_update_and_destroy_associated_records
+    task = project.tasks.create(:name => "Just created", :description => "Blah")
+    assert_no_difference "Task.count" do
+      assert project.update_attributes(:tasks => [
+        { :id => 1, :name => "Modified" },
+        { :id => task.id, :destroy => true },
+        { :name => "Last", :description => "Blah" }
+      ])
+    end
+    assert_valid_associated_records project, :tasks
   end
 
   private
