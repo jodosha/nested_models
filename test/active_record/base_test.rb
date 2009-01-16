@@ -3,11 +3,6 @@ require File.dirname(__FILE__) + '/../test_helper'
 class BaseTest < Test::Unit::TestCase
   fixtures :projects
 
-  def test_classes_should_keep_separated_accessible_associations
-    assert_equal [ :tasks ], Project.accessible_associations
-    assert_empty Task.accessible_associations
-  end
-
   def test_classes_should_keep_separated_accessible_destroy_flag
     assert_equal :destroy, Project.accessible_association_destroy_flag
     assert_equal :destroy_me, Milestone.accessible_association_destroy_flag
@@ -31,7 +26,7 @@ class BaseTest < Test::Unit::TestCase
   end
 
   def test_should_add_associated_records
-    assert_difference "Task.count" do
+    assert_task_count_difference do
       assert project.update_attributes(:name => "NM", :tasks => [
         { :name => 'Another task', :description => "Blah Blah" }
       ])      
@@ -41,7 +36,7 @@ class BaseTest < Test::Unit::TestCase
   end
 
   def test_should_modify_associated_records
-    assert_no_difference "Task.count" do
+    assert_no_task_count_difference do
       assert project.update_attributes(:tasks => [{:id => 1, :name => "done"}])
     end
     assert_equal 'done', project.tasks.first.name
@@ -49,7 +44,7 @@ class BaseTest < Test::Unit::TestCase
   end
 
   def test_should_add_and_modify_associated_records
-    assert_difference "Task.count" do
+    assert_task_count_difference do
       assert project.update_attributes(:tasks => [
         { :id => 1, :name => "mail" },
         { :name => "xzy", :description => "M" }
@@ -61,7 +56,7 @@ class BaseTest < Test::Unit::TestCase
   end
 
   def test_should_destroy_associated_records
-    assert_difference "Task.count", -1 do
+    assert_task_count_difference -1 do
       assert project.update_attributes(:tasks => [
         { :id => 1, :destroy => true }
       ])
@@ -70,7 +65,7 @@ class BaseTest < Test::Unit::TestCase
   end
 
   def test_should_add_and_destroy_associated_records
-    assert_no_difference "Task.count" do
+    assert_no_task_count_difference do
       assert project.update_attributes(:tasks => [
         { :id => 1, :destroy => true },
         { :name => "Just added", :description => "Blah" }
@@ -81,7 +76,7 @@ class BaseTest < Test::Unit::TestCase
 
   def test_should_update_and_destroy_associated_records
     task = project.tasks.create(:name => "Just created", :description => "Blah")
-    assert_difference "Task.count", -1 do
+    assert_task_count_difference -1 do
       assert project.update_attributes(:tasks => [
         { :id => 1, :name => "Modified" },
         { :id => task.id, :destroy => true }
@@ -92,7 +87,7 @@ class BaseTest < Test::Unit::TestCase
 
   def test_should_add_and_update_and_destroy_associated_records
     task = project.tasks.create(:name => "Just created", :description => "Blah")
-    assert_no_difference "Task.count" do
+    assert_no_task_count_difference do
       assert project.update_attributes(:tasks => [
         { :id => 1, :name => "Modified" },
         { :id => task.id, :destroy => true },

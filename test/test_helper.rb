@@ -45,6 +45,22 @@ class Test::Unit::TestCase
     assert model.valid?, message
   end
   
+  # Assert the numerical difference of the project's task count,
+  # before and after the given block is yielded.
+  def assert_task_count_difference(count = 1, &block)
+    assert_difference "project.tasks.count", count do
+      yield
+    end
+  end
+  
+  # Assert there is not numerical difference in the project's task count,
+  # before and after the given block is yielded.
+  def assert_no_task_count_difference(&block)
+    assert_no_difference "project.tasks.count" do
+      yield
+    end
+  end
+
   # Assert the given model has valid associated records.
   def assert_valid_associated_records(model, association)
     association = model.send(association)

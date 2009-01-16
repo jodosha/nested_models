@@ -1,3 +1,5 @@
+* Rewriting: accessible associations are no longer dependent on AR::Base#attributes
+
 * Added support to destroy
 
   project.tasks.size # => 1
