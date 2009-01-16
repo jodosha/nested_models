@@ -13,19 +13,8 @@ module ActiveRecord #:nodoc:
       end
 
       def replace_with_accessible_collection(other_array) #:nodoc:
-        other_array.map! do |val|
-          id = val.delete(primary_key.to_sym)
-          record = build_record(val)
-          unless id.blank?
-            record[primary_key] = id
-            record.instance_variable_set(:@new_record, false) # avoid database fetch
-          end
-          record
-        end
-
-        other_array.each { |val| raise_on_type_mismatch(val) }
-
         load_target
+
         transaction do
           destroy_accessible_associated_records other_array
           update_accessible_associated_records  other_array
@@ -35,18 +24,16 @@ module ActiveRecord #:nodoc:
 
       private
         def create_accessible_associated_records(records)
-          records.each(&:save)
+          records.map! { |record| build_accessible_record(record) }.each(&:save)
           concat(records)
         end
-      
+
         def update_accessible_associated_records(records)
           update_records = extract_update_accessible_records(records)
           update_records.each do |record|
-            attributes = record.attributes
-            id = attributes.delete(primary_key)
-            @reflection.klass.update(id, attributes)
+            id = record.delete(primary_key)
+            @reflection.klass.update(id, record)
           end
-          concat(update_records)
         end
 
         def destroy_accessible_associated_records(records)
@@ -56,19 +43,30 @@ module ActiveRecord #:nodoc:
         def extract_update_accessible_records(records)
           # TODO use returning instead
           result = records.dup
-          records.reject! { |record| !record.new_record? }
+          records.reject! { |record| !record[primary_key].blank? }
           result - records
         end
 
         def extract_destroy_accessible_records(records)
           # TODO use returning instead
           result = records.dup
-          records.reject! { |record| record.destroyable? }
-          result - records
+          records.reject! { |record| record[destroy_flag] }
+          (result - records).map { |record| build_accessible_record(record) }
         end
-        
+
+        def build_accessible_record(attributes)
+          id = attributes.delete(primary_key)
+          record = build_record(attributes)
+          unless id.blank?
+            record[primary_key.to_s] = id
+            record.instance_variable_set(:@new_record, false) # avoid database fetch
+          end
+          raise_on_type_mismatch(record)
+          record
+        end
+
         def primary_key
-          @primary_key ||= @reflection.klass.primary_key
+          @primary_key ||= @reflection.klass.primary_key.to_sym
         end
         
         def destroy_flag

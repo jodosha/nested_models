@@ -1,4 +1,6 @@
-* Separate behaviors of AssociationCollection#replace according to :accessible value
+* Fix for update case
+
+* Separate behaviors of AssociationCollection#replace according to :accessible option value
 
 * Rewriting: accessible associations are no longer dependent on AR::Base#attributes
 

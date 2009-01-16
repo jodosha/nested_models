@@ -39,7 +39,7 @@ class BaseTest < Test::Unit::TestCase
     assert_no_task_count_difference do
       assert project.update_attributes(:tasks => [{:id => 1, :name => "done"}])
     end
-    assert_equal 'done', project.tasks.first.name
+    assert_equal 'done', project.tasks(true).first.name
     assert_valid_associated_records project, :tasks # not needed, but it's free :-P
   end
 
@@ -49,7 +49,7 @@ class BaseTest < Test::Unit::TestCase
         { :id => 1, :name => "mail" },
         { :name => "xzy", :description => "M" }
       ])
-      assert_equal "mail", project.tasks.first.name
+      assert_equal "mail", project.tasks(true).first.name
       assert_equal "xzy",  project.tasks.last.name
       assert_valid_associated_records project, :tasks # not needed, but it's free :-P
     end
