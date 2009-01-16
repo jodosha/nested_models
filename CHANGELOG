@@ -1,3 +1,5 @@
+* Set RAILS_ENV for test suite only if needed
+
 * Fix for update case
 
 * Separate behaviors of AssociationCollection#replace according to :accessible option value

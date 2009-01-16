@@ -1,4 +1,4 @@
-RAILS_ENV = "test"
+RAILS_ENV = "test" unless defined?(RAILS_ENV)
 
 require 'rubygems'
 require 'active_record'
