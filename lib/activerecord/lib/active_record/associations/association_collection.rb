@@ -3,35 +3,36 @@ require 'set'
 module ActiveRecord #:nodoc:
   module Associations #:nodoc:
     class AssociationCollection < AssociationProxy #:nodoc:
+      alias_method :replace_without_accessible_collection, :replace
       def replace(other_array) #:nodoc:
+        if @reflection.options[:accessible]
+          replace_with_accessible_collection(other_array)
+        else
+          replace_without_accessible_collection(other_array)
+        end
+      end
+
+      def replace_with_accessible_collection(other_array) #:nodoc:
         other_array.map! do |val|
           id = val.delete(primary_key.to_sym)
           record = build_record(val)
-          if id
+          unless id.blank?
             record[primary_key] = id
-            record.instance_variable_set(:@new_record, false) # avoid to fetch from the database
+            record.instance_variable_set(:@new_record, false) # avoid database fetch
           end
           record
-        end if @reflection.options[:accessible]
+        end
 
         other_array.each { |val| raise_on_type_mismatch(val) }
 
         load_target
-        other   = other_array.size < 100 ? other_array : other_array.to_set
-        current = @target.size < 100 ? @target : @target.to_set
-
         transaction do
-          if @reflection.options[:accessible]
-            destroy_accessible_associated_records other_array
-            update_accessible_associated_records  other_array
-            create_accessible_associated_records  other_array
-          else
-            delete(@target.select { |v| !other.include?(v) })
-            concat(other_array.select { |v| !current.include?(v) })
-          end
+          destroy_accessible_associated_records other_array
+          update_accessible_associated_records  other_array
+          create_accessible_associated_records  other_array
         end
       end
-      
+
       private
         def create_accessible_associated_records(records)
           records.each(&:save)
